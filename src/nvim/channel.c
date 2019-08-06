@@ -8,6 +8,7 @@
 #include "nvim/eval/encode.h"
 #include "nvim/event/socket.h"
 #include "nvim/fileio.h"
+#include "nvim/lua/executor.h"
 #include "nvim/msgpack_rpc/channel.h"
 #include "nvim/msgpack_rpc/server.h"
 #include "nvim/os/shell.h"
@@ -230,6 +231,20 @@ void callback_reader_start(CallbackReader *reader, const char *type)
 {
   ga_init(&reader->buffer, sizeof(char *), 32);
   reader->type = type;
+}
+
+Channel *acquire_asynccall_channel(void)
+{
+  typval_T jobid_tv = TV_INITIAL_VALUE;
+  executor_exec_lua(
+      STATIC_CSTR_AS_STRING("return vim._create_nvim_job()"),
+      &jobid_tv);
+  return find_channel((uint64_t)jobid_tv.vval.v_number);
+}
+
+void release_asynccall_channel(Channel *channel)
+{
+  process_stop((Process *)&channel->stream.proc);
 }
 
 void asynccall_clear(AsyncCall **async_call)
