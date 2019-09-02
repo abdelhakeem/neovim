@@ -5,11 +5,13 @@
 
 #include "nvim/event/defs.h"
 #include "nvim/lib/queue.h"
+#include "nvim/log.h"
 
 typedef struct multiqueue MultiQueue;
 typedef void (*put_callback)(MultiQueue *multiq, void *data);
 
 #define multiqueue_put(q, h, ...) \
+  ILOG(#q": "#h); \
   multiqueue_put_event(q, event_create(h, __VA_ARGS__));
 
 

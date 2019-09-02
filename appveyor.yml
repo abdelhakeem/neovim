@@ -11,15 +11,6 @@ configuration:
 - MINGW_32
 - MSVC_64
 - MSVC_32
-init:
-- ps: |
-    # Pull requests: skip some build configurations to save time.
-    if ($env:APPVEYOR_PULL_REQUEST_HEAD_COMMIT -and $env:CONFIGURATION -match '^(MSVC_64|MINGW_32)$') {
-      $env:APPVEYOR_CACHE_SKIP_SAVE = "true"
-      Exit-AppVeyorBuild
-    }
-# RDP
-#- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 matrix:
   fast_finish: true
 install: []
@@ -42,4 +33,4 @@ artifacts:
 - path: build/bin/nvim.exe
 branches:
   only:
-    - master
+    - waituntil-test
